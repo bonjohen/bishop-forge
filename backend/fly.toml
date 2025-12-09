@@ -1,0 +1,48 @@
+# BishopForge Backend - Fly.io Configuration
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+
+app = "bishop-forge-backend"
+primary_region = "ord"  # Chicago - change to your preferred region
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  # Engine configuration
+  BF_ENGINE_MODE = "simpleengine"
+  BF_STOCKFISH_PATH = "/usr/games/stockfish"
+  BF_ENGINE_POOL_SIZE = "4"
+  
+  # Caching
+  BF_CACHE_ENABLED = "true"
+  
+  # CORS
+  BF_ALLOW_CORS = "true"
+  
+  # Logging
+  BF_LOG_LEVEL = "info"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    timeout = "5s"
+    path = "/health"
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1
+
+# Deployment configuration
+[deploy]
+  release_command = "echo 'Deployment starting...'"
+
