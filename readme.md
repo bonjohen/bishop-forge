@@ -224,15 +224,3 @@ Covers:
 * Add theme customization
 * Add drag-and-drop piece movement
 * Add engine evaluation overlay
-
----
-
-If you'd like, I can also generate:
-
-* A second README for contributors
-* A quickstart guide
-* A developer onboarding doc
-* A GitHub Actions CI/CD pipeline
-* Auto-generated API documentation (OpenAPI / Swagger)
-
-Just tell me.
