@@ -22,9 +22,10 @@ function bootstrap() {
   const controlsRoot = document.createElement("div");
   const statusRoot = document.createElement("div");
 
+  // Controls above board, status below
+  leftCol.appendChild(controlsRoot);
   leftCol.appendChild(boardRoot);
-  rightCol.appendChild(controlsRoot);
-  rightCol.appendChild(statusRoot);
+  leftCol.appendChild(statusRoot);
 
   layout.appendChild(leftCol);
   layout.appendChild(rightCol);

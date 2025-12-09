@@ -7,10 +7,17 @@ function ensureStyles() {
   const style = document.createElement("style");
   style.textContent = `
     .bf-layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 320px);
-      gap: 16px;
+      display: flex;
+      justify-content: center;
       align-items: flex-start;
+      gap: 16px;
+    }
+
+    .bf-layout > div {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 516px; /* Board width: 8*64px + 4px border */
     }
 
     .bf-board {
@@ -64,6 +71,8 @@ function ensureStyles() {
       border-radius: 4px;
       padding: 8px 10px;
       font-size: 14px;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     .bf-card h3 {
