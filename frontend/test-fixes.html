@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Bug Fixes</title>
+</head>
+<body>
+  <h1>Bug Fix Test Cases</h1>
+  
+  <h2>Test 1: Queenside Castling</h2>
+  <ol>
+    <li>Start a new game</li>
+    <li>Play these moves: e4, e5, Nf3, Nc6, Bc4, Bc5, d3, d6, Bd2, Bd7, Nc3, Nf6, Qe2, Qe7</li>
+    <li>Click on the white King (e1)</li>
+    <li>Click on c1 (two squares to the left)</li>
+    <li>✅ The king should castle queenside (King on c1, Rook on d1)</li>
+  </ol>
+
+  <h2>Test 2: Undo Selection Bug</h2>
+  <ol>
+    <li>Start a new game</li>
+    <li>Click on e2 pawn (should highlight)</li>
+    <li>Click on e4 (pawn moves)</li>
+    <li>Click "Undo" button</li>
+    <li>✅ The board should NOT have any piece selected (no yellow outline)</li>
+    <li>✅ You should be able to select any piece now</li>
+  </ol>
+
+  <h2>Test 3: Pawn Promotion</h2>
+  <ol>
+    <li>Use "Force Move (SAN)" to set up a position near promotion</li>
+    <li>Enter these moves one by one: e4, d5, exd5, Nf6, d6, e6, dxe7, Qxe7, d4, Qe4+, Be2, Qxg2, Bf3, Qxh1+, Kd2, Qxf3, Nf3, h5, d5, h4, d6, h3, d7, h2, d8=Q</li>
+    <li>Now move the h2 pawn to h1</li>
+    <li>✅ A prompt should appear asking "Promote to (q/r/b/n):"</li>
+    <li>✅ Enter "q" and the pawn should become a queen</li>
+  </ol>
+
+  <p><a href="/">Back to Chess App</a></p>
+</body>
+</html>
+

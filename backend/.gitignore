@@ -1,0 +1,35 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+.env/
+.env.local
+
+# Pytest cache
+.pytest_cache/
+
+# FastAPI artifacts
+instance/
+*.db
+*.sqlite3
+
+# MyPy
+.mypy_cache/
+
+# Pydantic cache
+.pdm-python/
+
+# IDE settings
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
