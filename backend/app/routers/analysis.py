@@ -4,8 +4,13 @@ import chess
 from fastapi import APIRouter, HTTPException
 
 from ..models import AnalyzeRequest, AnalyzeResponse, MoveSuggestion
-from ..engine import engine_manager
 from ..cache import cache
+
+# Import engine_manager only if it exists
+try:
+    from ..engine import engine_manager
+except (ImportError, AttributeError):
+    engine_manager = None
 
 router = APIRouter(prefix="/analysis", tags=["analysis"])
 
@@ -24,6 +29,9 @@ async def analyze_position(req: AnalyzeRequest) -> AnalyzeResponse:
 
     if board.is_game_over():
         raise HTTPException(status_code=400, detail="Game is already over in this position")
+
+    if engine_manager is None:
+        raise HTTPException(status_code=503, detail="Engine manager not available")
 
     result = await engine_manager.analyze(board, max_depth=req.max_depth)
 

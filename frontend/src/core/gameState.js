@@ -5,6 +5,10 @@ export function createGameState(eventBus, initialConfig) {
   const engine = createEngineClient();
   let config = mergeConfig(getDefaultConfig(), initialConfig);
   let status = engine.getStatus();
+  let opponentEnabled = false;
+  let opponentProfile = "random";
+  let moveStartTime = null;
+  let moveTimings = []; // Array of {moveIndex, timeMs, isComputer}
 
   function emitState() {
     eventBus?.emit("gameStateChanged", {
@@ -21,6 +25,8 @@ export function createGameState(eventBus, initialConfig) {
   function newGame(initialFen) {
     engine.initGame(initialFen);
     status = engine.getStatus();
+    moveStartTime = Date.now();
+    moveTimings = [];
     emitState();
   }
 
@@ -36,6 +42,10 @@ export function createGameState(eventBus, initialConfig) {
     return engine.getHistory();
   }
 
+  function getMoveTimings() {
+    return moveTimings;
+  }
+
   function getConfig() {
     return { ...config };
   }
@@ -49,9 +59,21 @@ export function createGameState(eventBus, initialConfig) {
     return engine.getLegalMoves(square);
   }
 
-  function applyMove(from, to, promotion) {
+  function applyMove(from, to, promotion, isComputer = false) {
     const res = engine.makeMove(from, to, promotion);
     if (!res.success) return res;
+
+    // Track move timing
+    const now = Date.now();
+    const timeMs = moveStartTime ? now - moveStartTime : 0;
+    const history = engine.getHistory();
+    moveTimings.push({
+      moveIndex: history.length - 1,
+      timeMs,
+      isComputer
+    });
+    moveStartTime = now;
+
     status = res.status;
     emitState();
     return res;
@@ -68,6 +90,18 @@ export function createGameState(eventBus, initialConfig) {
     return res;
   }
 
+  function setOpponent(enabled, profile) {
+    opponentEnabled = enabled;
+    opponentProfile = profile || "random";
+  }
+
+  function getOpponentConfig() {
+    return {
+      enabled: opponentEnabled,
+      profile: opponentProfile,
+    };
+  }
+
   // init
   newGame();
 
@@ -76,10 +110,13 @@ export function createGameState(eventBus, initialConfig) {
     getFen,
     getStatus,
     getHistory,
+    getMoveTimings,
     getConfig,
     updateConfig,
     getLegalMovesFrom,
     applyMove,
     requestUndo,
+    setOpponent,
+    getOpponentConfig,
   };
 }

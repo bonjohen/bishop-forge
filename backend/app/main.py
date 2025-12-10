@@ -4,8 +4,15 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import settings
-from .engine import engine_manager
-from .routers import analysis, moves, study, pgn, sessions
+from .routers import analysis, moves, study, pgn, sessions, opponent
+
+# Import engine_manager only if it exists (for backward compatibility)
+try:
+    from .engine import engine_manager
+    HAS_ENGINE_MANAGER = True
+except (ImportError, AttributeError):
+    engine_manager = None
+    HAS_ENGINE_MANAGER = False
 
 
 app = FastAPI(
@@ -28,12 +35,14 @@ if settings.ALLOW_CORS:
 
 @app.on_event("startup")
 async def on_startup() -> None:
-    await engine_manager.startup()
+    if HAS_ENGINE_MANAGER and engine_manager:
+        await engine_manager.startup()
 
 
 @app.on_event("shutdown")
 async def on_shutdown() -> None:
-    await engine_manager.shutdown()
+    if HAS_ENGINE_MANAGER and engine_manager:
+        await engine_manager.shutdown()
 
 
 @app.get("/health")
@@ -47,3 +56,4 @@ app.include_router(moves.router)
 app.include_router(study.router)
 app.include_router(pgn.router)
 app.include_router(sessions.router)
+app.include_router(opponent.router)

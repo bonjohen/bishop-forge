@@ -1,4 +1,5 @@
 import { fenToBoard, indexToSquare } from "../core/fenUtils.js";
+import { getOpponentMove } from "../api/backendClient.js";
 
 let stylesInjected = false;
 
@@ -57,6 +58,11 @@ function ensureStyles() {
 
     .bf-square.highlight {
       box-shadow: inset 0 0 0 3px rgba(0, 255, 0, 0.7);
+    }
+
+    .bf-square.last-move {
+      outline: 3px solid #ff6b6b;
+      outline-offset: -3px;
     }
 
     .bf-sidepanel {
@@ -144,6 +150,8 @@ export function createBoardView(rootEl, gameState, eventBus) {
 
   let selectedSquare = null;
   let highlightedTargets = new Set();
+  let isProcessingOpponentMove = false;
+  let lastMoveSquares = []; // [from, to] of the last move
 
   function clearSelection() {
     selectedSquare = null;
@@ -206,7 +214,7 @@ export function createBoardView(rootEl, gameState, eventBus) {
     }
 
     const fromSquare = selectedSquare;
-    const res = gameState.applyMove(fromSquare, square, promotion);
+    const res = gameState.applyMove(fromSquare, square, promotion, false); // false = not computer
     if (!res.success) {
       eventBus.emit(
         "status:error",
@@ -216,14 +224,57 @@ export function createBoardView(rootEl, gameState, eventBus) {
       // Use move.from and move.to from the chess.js move object
       const moveFrom = res.move?.from || fromSquare;
       const moveTo = res.move?.to || square;
+      lastMoveSquares = [moveFrom, moveTo];
+
       eventBus.emit(
         "status:info",
         `Move played: ${moveFrom} → ${moveTo}`
       );
+
+      // Check if opponent should move
+      const opponentConfig = gameState.getOpponentConfig();
+      if (opponentConfig.enabled && !gameState.getStatus().game_over) {
+        // Delay opponent move slightly for better UX
+        setTimeout(() => makeOpponentMove(opponentConfig.profile), 500);
+      }
     }
 
     clearSelection();
     render();
+  }
+
+  async function makeOpponentMove(profile) {
+    if (isProcessingOpponentMove) return;
+    isProcessingOpponentMove = true;
+
+    try {
+      const fen = gameState.getFen();
+      eventBus.emit("status:info", "Opponent is thinking...");
+
+      const result = await getOpponentMove(fen, profile);
+
+      // Parse UCI move (e.g., "e2e4" or "e7e8q")
+      const from = result.move_uci.substring(0, 2);
+      const to = result.move_uci.substring(2, 4);
+      const promo = result.move_uci.length > 4 ? result.move_uci[4] : undefined;
+
+      const res = gameState.applyMove(from, to, promo, true); // true = computer move
+      if (res.success) {
+        lastMoveSquares = [from, to];
+        eventBus.emit(
+          "status:info",
+          `Opponent played: ${result.move_san || result.move_uci}`
+        );
+        render();
+      } else {
+        eventBus.emit("status:error", "Opponent move failed");
+      }
+    } catch (err) {
+      console.error("Opponent move error:", err);
+      eventBus.emit("status:error", "Failed to get opponent move");
+    } finally {
+      isProcessingOpponentMove = false;
+    }
   }
 
   function render() {
@@ -250,6 +301,9 @@ export function createBoardView(rootEl, gameState, eventBus) {
         if (highlightedTargets.has(squareName)) {
           sqEl.classList.add("highlight");
         }
+        if (lastMoveSquares.includes(squareName)) {
+          sqEl.classList.add("last-move");
+        }
 
         sqEl.dataset.square = squareName;
         sqEl.textContent = piece ? pieceToChar(piece) : "";
@@ -267,6 +321,11 @@ export function createBoardView(rootEl, gameState, eventBus) {
   eventBus?.on("gameStateChanged", () => {
     clearSelection();
     render();
+  });
+
+  // Clear last move highlight on new game
+  eventBus?.on("status:clear", () => {
+    lastMoveSquares = [];
   });
 
   return { render };
