@@ -1,4 +1,8 @@
 # engine_batch.py
+"""
+Batch operations for chess engine.
+Uses native GPU batch methods when available, falls back to CPU loop otherwise.
+"""
 
 from .backend import xp, GPU, Engine as SingleEngine
 from .moves import (
@@ -10,8 +14,16 @@ from .moves import (
 ###########################################################################
 
 def compute_attack_maps_batch(piece_arr_batch, color_arr_batch):
-    N = piece_arr_batch.shape[0]
+    """
+    Compute attack maps for batch of positions.
+    Uses native GPU batch method if available, otherwise loops over CPU.
+    """
+    # Use native GPU batch method if available
+    if GPU and hasattr(SingleEngine, 'compute_attack_maps_batch'):
+        return SingleEngine.compute_attack_maps_batch(piece_arr_batch, color_arr_batch)
 
+    # Fall back to CPU loop
+    N = piece_arr_batch.shape[0]
     white = xp.zeros((N, 64), dtype=xp.bool_)
     black = xp.zeros((N, 64), dtype=xp.bool_)
 
@@ -28,8 +40,16 @@ def compute_attack_maps_batch(piece_arr_batch, color_arr_batch):
 ###########################################################################
 
 def evaluate_batch(piece_arr_batch, color_arr_batch):
-    N = piece_arr_batch.shape[0]
+    """
+    Evaluate batch of positions.
+    Uses native GPU batch method if available, otherwise loops over CPU.
+    """
+    # Use native GPU batch method if available
+    if GPU and hasattr(SingleEngine, 'evaluate_batch'):
+        return SingleEngine.evaluate_batch(piece_arr_batch, color_arr_batch)
 
+    # Fall back to CPU loop
+    N = piece_arr_batch.shape[0]
     white_off = xp.zeros(N, dtype=xp.int32)
     white_def = xp.zeros(N, dtype=xp.int32)
     black_off = xp.zeros(N, dtype=xp.int32)
@@ -52,6 +72,15 @@ def evaluate_batch(piece_arr_batch, color_arr_batch):
 ###########################################################################
 
 def generate_moves_batch(piece_arr_batch, color_arr_batch, stm_batch):
+    """
+    Generate moves for batch of positions.
+    Uses native GPU batch method if available, otherwise loops over CPU.
+    """
+    # Use native GPU batch method if available
+    if GPU and hasattr(SingleEngine, 'generate_moves_batch'):
+        return SingleEngine.generate_moves_batch(piece_arr_batch, color_arr_batch, stm_batch)
+
+    # Fall back to CPU loop
     xp_local = xp
     moves_accum = []
 

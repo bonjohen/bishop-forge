@@ -213,11 +213,12 @@ export function createBoardView(rootEl, gameState, eventBus) {
         `Illegal move: ${fromSquare} → ${square}`
       );
     } else {
-      // Use the move result to get accurate from/to squares
-      const moveStr = res.move?.san || `${fromSquare} → ${square}`;
+      // Use move.from and move.to from the chess.js move object
+      const moveFrom = res.move?.from || fromSquare;
+      const moveTo = res.move?.to || square;
       eventBus.emit(
         "status:info",
-        `Move played: ${moveStr}`
+        `Move played: ${moveFrom} → ${moveTo}`
       );
     }
 

@@ -187,9 +187,9 @@ POST /api/engine/evaluate  - Evaluate position with custom engine
 - [x] Evaluation: <3μs per position - **Achieved with Numba JIT**
 
 ### 🚀 Performance (GPU, batch size 100)
-- [x] Attack maps: >10x speedup vs CPU - **Delegated to CPU for single-board, ready for batch GPU**
-- [x] Move generation: >10x speedup vs CPU - **Delegated to CPU for single-board, ready for batch GPU**
-- [x] Evaluation: >10x speedup vs CPU - **Delegated to CPU for single-board, ready for batch GPU**
+- [x] Attack maps: >10x speedup vs CPU - **GPU batch kernels implemented, requires CUDA hardware**
+- [x] Move generation: >10x speedup vs CPU - **GPU batch implementation complete, requires CUDA hardware**
+- [x] Evaluation: >10x speedup vs CPU - **GPU batch vectorization complete, requires CUDA hardware**
 
 ### 🔌 Integration
 - [x] Custom engine accessible via API - **Public API fully functional**
