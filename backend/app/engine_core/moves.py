@@ -1,0 +1,7 @@
+# moves.py
+
+MOVE_IDX   = 0
+MOVE_FROM  = 1
+MOVE_TO    = 2
+MOVE_PROMO = 3
+MOVE_FLAGS = 4

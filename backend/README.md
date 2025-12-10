@@ -15,7 +15,7 @@ FastAPI-based chess analysis and helper API for Project BishopForge.
 ### Prerequisites
 
 - Python 3.12+
-- (Optional) Stockfish binary for production-quality analysis
+- Stockfish binary for production-quality analysis
 
 ### Installation
 
