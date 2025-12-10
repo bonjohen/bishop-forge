@@ -243,6 +243,29 @@ export function createBoardView(rootEl, gameState, eventBus) {
     render();
   }
 
+  function makeRandomMove() {
+    // Client-side fallback: make a random legal move
+    const allMoves = gameState.getLegalMovesFrom(null);
+    if (!allMoves || allMoves.length === 0) {
+      eventBus.emit("status:error", "No legal moves available");
+      return false;
+    }
+
+    const randomMove = allMoves[Math.floor(Math.random() * allMoves.length)];
+    const res = gameState.applyMove(randomMove.from, randomMove.to, randomMove.promotion, true);
+
+    if (res.success) {
+      lastMoveSquares = [randomMove.from, randomMove.to];
+      eventBus.emit(
+        "status:info",
+        `Opponent played: ${randomMove.san || `${randomMove.from}${randomMove.to}`} (offline mode)`
+      );
+      render();
+      return true;
+    }
+    return false;
+  }
+
   async function makeOpponentMove(profile) {
     if (isProcessingOpponentMove) return;
     isProcessingOpponentMove = true;
@@ -271,7 +294,20 @@ export function createBoardView(rootEl, gameState, eventBus) {
       }
     } catch (err) {
       console.error("Opponent move error:", err);
-      eventBus.emit("status:error", "Failed to get opponent move");
+
+      // Check if it's a network error (backend unreachable)
+      const isNetworkError = err.message.includes("Failed to fetch") ||
+                            err.message.includes("NetworkError") ||
+                            err.message.includes("API error");
+
+      if (isNetworkError) {
+        // Fallback to client-side random move
+        eventBus.emit("status:info", "Backend unreachable, using offline mode...");
+        makeRandomMove();
+      } else {
+        // Show the actual error message
+        eventBus.emit("status:error", `Opponent error: ${err.message}`);
+      }
     } finally {
       isProcessingOpponentMove = false;
     }
