@@ -20,6 +20,7 @@ export function createControlsView(rootEl, gameState, eventBus) {
     newBtn.textContent = "New Game";
     newBtn.onclick = () => {
       gameState.newGame();
+      eventBus.emit("status:clear");
       eventBus.emit("status:info", "New game started.");
     };
     row1.appendChild(newBtn);

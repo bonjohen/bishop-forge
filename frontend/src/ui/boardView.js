@@ -205,16 +205,19 @@ export function createBoardView(rootEl, gameState, eventBus) {
       promotion = promptPromotion();
     }
 
-    const res = gameState.applyMove(selectedSquare, square, promotion);
+    const fromSquare = selectedSquare;
+    const res = gameState.applyMove(fromSquare, square, promotion);
     if (!res.success) {
       eventBus.emit(
         "status:error",
-        `Illegal move: ${selectedSquare} → ${square}`
+        `Illegal move: ${fromSquare} → ${square}`
       );
     } else {
+      // Use the move result to get accurate from/to squares
+      const moveStr = res.move?.san || `${fromSquare} → ${square}`;
       eventBus.emit(
         "status:info",
-        `Move played: ${selectedSquare} → ${square}`
+        `Move played: ${moveStr}`
       );
     }
 

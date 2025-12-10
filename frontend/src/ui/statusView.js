@@ -8,6 +8,11 @@ export function createStatusView(rootEl, gameState, eventBus) {
     render();
   }
 
+  function clearMessages() {
+    messages.length = 0;
+    render();
+  }
+
   function render() {
     const status = gameState.getStatus();
     const history = gameState.getHistory();
@@ -66,6 +71,7 @@ export function createStatusView(rootEl, gameState, eventBus) {
   eventBus.on("gameStateChanged", () => render());
   eventBus.on("status:info", (t) => pushMessage("info", t));
   eventBus.on("status:error", (t) => pushMessage("error", t));
+  eventBus.on("status:clear", () => clearMessages());
 
   return { render };
 }
